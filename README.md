@@ -100,5 +100,5 @@ First, include the IP address and hostname of the control plane and the worker n
 Then execute same command from "Disable swap memory" to "Enable Kubernetes repository"
 ### Install Kubernetes binaries except kubectl
 ######
-    sudo yum install --disableexcludes=kubernetes kubectl kubeadm kubelet -y
+    sudo yum install --disableexcludes=kubernetes kubeadm kubelet -y
     sudo systemctl enable --now kubelet
