@@ -215,15 +215,12 @@ Include this line
       name: default
       annotations:
         storageclass.kubernetes.io/is-default-class: "true"
-    provisioner: nfs.csi.k8s.io
+    provisioner: tsd/nfs
     parameters:
       server: control.example.com
       share: /nfs
     reclaimPolicy: Delete
     volumeBindingMode: Immediate
-    mountOptions:
-      - hard
-      - nfsvers=4.1
     EOF
 ######
     kubectl apply -f storageclass-configure.yaml
