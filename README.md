@@ -93,3 +93,6 @@ Create an initial configuration for containerd. Then enable systemd cgroup drive
 ## 3. Kubernetes worker node setup
 First, include the IP address and hostname of the control plane and the worker node
 Then execute same command from "Disable swap memory" to Enable Kubernetes repository
+######
+    sudo tee -a /etc/hosts << EOF
+    10.0.2.10 control control.example.com
