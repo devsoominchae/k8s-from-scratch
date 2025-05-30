@@ -4,6 +4,7 @@
 1. Environment setup
 2. Kubernetes control plane node setup
 3. Kubernetes worker node setup
+4. Deploy SAS Viya from control plane node
 
 ## 1. Environment setup
 - RACE Image ID: 1439134
@@ -138,6 +139,16 @@ Expected output
     tar -xzf k9s.tar.gz
     sudo mv k9s /usr/local/bin/
 
+### Install metrics server
+    kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+
+    kubectl patch deployment metrics-server -n kube-system \
+      --type='json' \
+      -p='[{"op":"add","path":"/spec/template/spec/containers/0/args/-","value":"--kubelet-insecure-tls"},{"op":"add","path":"/spec/template/spec/containers/0/args/-","value":"--kubelet-preferred-address-types=InternalIP,Hostname"}]'
+    
+    kubectl rollout restart deployment metrics-server -n kube-system
+
+
 ### Configure by applying the MetalLB yaml file
 ######
     kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.14.8/config/manifests/metallb-native.yaml
@@ -215,7 +226,7 @@ Include this line
       name: default
       annotations:
         storageclass.kubernetes.io/is-default-class: "true"
-    provisioner: tsd/nfs
+    provisioner: nfs.csi.k8s.io
     parameters:
       server: control.example.com
       share: /nfs
@@ -299,3 +310,108 @@ Full code for worker node setup
 
     sudo yum install --disableexcludes=kubernetes kubeadm kubelet -y
     sudo systemctl enable --now kubelet
+
+## 4. Deploy SAS Viya from control plane node
+First, get the order files from my.sas.com and unzip it. 
+######
+Then create the namespace to deploy SAS Viya
+######
+    kubectl create namespace viya
+
+Untaint the control node so that it can deploy resources as well
+######
+    kubectl taint nodes control.example.com node-role.kubernetes.io/control-plane-
+
+Enable nginx.ingress.kubernetes.io/configuration-snippet
+######
+    kubectl get configmap ingress-nginx-controller -n ingress-nginx -o yaml | \
+    sed 's/allow-snippet-annotations: "false"/allow-snippet-annotations: "true"/' | \
+    kubectl apply -f - -n ingress-nginx
+
+### Install kustomize
+    curl -s "https://api.github.com/repos/kubernetes-sigs/kustomize/releases/latest" \
+    | grep browser_download_url \
+    | grep linux_amd64 \
+    | cut -d '"' -f 4 \
+    | xargs curl -LO
+    
+    tar -xzf kustomize_v*_linux_amd64.tar.gz
+    sudo mv kustomize /usr/local/bin/
+    
+    kustomize version
+
+### Create initial kustomization.yaml
+######
+    sudo tee kustomization.yaml << EOF
+    namespace: viya
+    resources:
+    - sas-bases/base
+    - sas-bases/overlays/network/networking.k8s.io
+    - site-config/security/openssl-generated-ingress-certificate.yaml
+    - sas-bases/overlays/cas-server
+    - sas-bases/overlays/crunchydata/postgres-operator
+    - sas-bases/overlays/postgres/platform-postgres
+    # If your deployment contains SAS Viya Programming, comment out the next line
+    - sas-bases/overlays/internal-elasticsearch
+    - sas-bases/overlays/update-checker
+    - sas-bases/overlays/cas-server/auto-resources
+    configurations:
+    - sas-bases/overlays/required/kustomizeconfig.yaml
+    transformers:
+    # If your deployment does not support privileged containers or if your deployment
+    # contains SAS Viya Programming, comment out the next line
+    - sas-bases/overlays/internal-elasticsearch/sysctl-transformer.yaml
+    - sas-bases/overlays/required/transformers.yaml
+    - sas-bases/overlays/cas-server/auto-resources/remove-resources.yaml
+    # If your deployment contains SAS Viya Programming, comment out the next line
+    - sas-bases/overlays/internal-elasticsearch/internal-elasticsearch-transformer.yaml
+    # Mount information
+    # - site-config/{{ DIRECTORY-PATH }}/cas-add-host-mount.yaml
+    components:
+    - sas-bases/components/crunchydata/internal-platform-postgres
+    - sas-bases/components/security/core/base/full-stack-tls
+    - sas-bases/components/security/network/networking.k8s.io/ingress/nginx.ingress.kubernetes.io/full-stack-tls
+    patches:
+    - path: site-config/storageclass.yaml
+      target:
+        kind: PersistentVolumeClaim
+        annotationSelector: sas.com/component-name in (sas-backup-job,sas-data-quality-services,sas-commonfiles,sas-cas-operator,sas-pyconfig,sas-risk-cirrus-search,sas-risk-modeling-core,sas-event-stream-processing-studio-app)
+    # License information
+    # secretGenerator:
+    # - name: sas-license
+    #   type: sas.com/license
+    #   behavior: merge
+    #   files:
+    #   - SAS_LICENSE=license.jwt
+    configMapGenerator:
+    - name: ingress-input
+      behavior: merge
+      literals:
+      - INGRESS_HOST=trck1051917.trc.sas.com
+    - name: sas-shared-config
+      behavior: merge
+      literals:
+      - SAS_SERVICES_URL=https://trck1051917.trc.sas.com
+      # - SAS_URL_EXTERNAL_VIYA={{ EXTERNAL-PROXY-URL }}
+    secretGenerator:
+    - name: sas-consul-config            ## This injects content into consul. You can add, but not replace
+      behavior: merge
+      files:
+        - SITEDEFAULT_CONF=site-config/sitedefault.yaml
+    EOF
+
+### Build site.yaml file
+    kustomize build -o site.yaml
+
+### Apply cluster-api resources to the cluster. As an administrator with cluster permissions, run
+    kubectl apply --selector="sas.com/admin=cluster-api" --server-side --force-conflicts -f site.yaml
+    kubectl wait --for condition=established --timeout=60s -l "sas.com/admin=cluster-api" crd
+
+### As an administrator with cluster permissions, run
+    kubectl apply --selector="sas.com/admin=cluster-wide" -f site.yaml
+
+### As an administrator with local cluster permissions, run
+    kubectl apply --selector="sas.com/admin=cluster-local" -f site.yaml --prune
+
+### As an administrator with namespace permissions, run
+    kubectl apply --selector="sas.com/admin=namespace" -f site.yaml --prune
