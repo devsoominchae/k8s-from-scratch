@@ -4,7 +4,7 @@ metadata:
   name: hostname-viewer
   namespace: demo
 spec:
-  replicas: 6
+  replicas: 3
   selector:
     matchLabels:
       app: hostname-viewer
