@@ -1,4 +1,4 @@
-## This repo contains the files and explanations to setup Kubernetes cluster from scratch.
+## How to setup Kubernetes cluster from scratch.
 
 ## Required Steps
 1. Environment setup

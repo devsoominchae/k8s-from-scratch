@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ip-viewer
+  namespace: ip-viewer
+spec:
+  replicas: 6
+  selector:
+    matchLabels:
+      app: ip-viewer
+  template:
+    metadata:
+      labels:
+        app: ip-viewer
+    spec:
+      containers:
+        - name: ip-viewer
+          image: soominchae/ip-viewer:latest
+          ports:
+            - containerPort: 5000
