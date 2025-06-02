@@ -1,12 +1,12 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: ip-viewer-service
+  name: hostname-viewer-service
   namespace: demo
 spec:
   type: ClusterIP
   selector:
-    app: ip-viewer
+    app: hostname-viewer
   ports:
     - port: 80
       targetPort: 5000
