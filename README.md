@@ -167,7 +167,7 @@ Expected output
       namespace: metallb-system
     spec:
       addresses:
-      - 10.0.2.20-10.0.2.20
+      - 10.0.2.20-10.0.2.30
       autoAssign: true
     EOF
     
