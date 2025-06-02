@@ -17,13 +17,14 @@
 
 ### Add the hostname and IP address of all control nodes and worker nodes
 ######
-    sudo tee -a /etc/hosts
+    sudo tee -a /etc/hosts << EOF
     10.0.2.10 control control.example.com
     10.0.2.11 worker1 worker1.example.com
     10.0.2.12 worker2 worker1.example.com
     10.0.2.13 worker3 worker1.example.com
     10.0.2.14 worker4 worker1.example.com
     10.0.2.15 worker5 worker1.example.com
+    EOF
 
 ### Disable swap memory
 Kubernetes is still undergoing process to stablize the usage of swap. [Read this K8s blog](https://kubernetes.io/blog/2025/03/25/swap-linux-improvements/)
