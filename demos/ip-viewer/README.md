@@ -1,14 +1,14 @@
-## Demo web application to show load balancing
+## Demo web application to show load balancing.
 
-### Create a namespace to deploy the web application
+### Create a namespace to deploy the web application.
 ######
     kubectl create namespace ip-viewer
 
-### Deploy the web application 
+### Deploy the web application .
 ######
     kubectl apply -f deployment.yaml
 
-### Start a service to make the web application accessible from public
+### Start a service to make the web application accessible from public.
 ######
     kubectl apply -f service.yaml
 
@@ -17,8 +17,8 @@ to tell the ingress controller when someone is accessing the ingress port (80), 
 ######
     kubectl apply -f ingress.yaml
 
-### Test if the service is running
-Use kubectl command with filters
+### Test if the service is running.
+Use kubectl command with filters.
 ######
     kubectl get pods -l app=ip-viewer -n ip-viewer
 
@@ -50,11 +50,11 @@ Before deleting the pods, lets see what we currently have.
     ip-viewer-5855bbddc9-lzrzh   1/1     Running   0          25m
     ip-viewer-5855bbddc9-t7729   1/1     Running   0          25m
 
-Now delete the pods
+Now delete the pods.
 ######
     kubectl delete pods -l app=ip-viewer -n ip-viewer
 
-Get the pods again
+Get the pods again.
 ######
     NAME                         READY   STATUS        RESTARTS   AGE
     ip-viewer-5855bbddc9-c5l8x   1/1     Running       0          16s
@@ -66,8 +66,8 @@ Get the pods again
 
 Previous pods are being deleted and k8s automatically deploys new pods to fulfill the definition.
 
-### Add a pod by editing the replica set
-Open deploymeny.yaml and edit 
+### Add a pod by editing the replica set.
+Open deploymeny.yaml and edit .
 ######
     spec:
         replicas: 3
@@ -78,10 +78,12 @@ to
     spec:
         replicas: 6
 
-Then apply the file
+Then apply the file.
 ######
     kubectl apply -f deployment.yaml
 
+Get the pods again.
+######
     kubectl get pods -l app=ip-viewer -n ip-viewer
 
     NAME                         READY   STATUS    RESTARTS   AGE
