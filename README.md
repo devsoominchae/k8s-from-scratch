@@ -264,6 +264,15 @@ Full code for worker node setup
     sudo swapoff -a
     sudo sed -i '/ swap / s/^/#/' /etc/fstab
 
+    sudo tee -a /etc/hosts << EOF
+    10.0.2.10 control control.example.com
+    10.0.2.11 worker1 worker1.example.com
+    10.0.2.12 worker2 worker1.example.com
+    10.0.2.13 worker3 worker1.example.com
+    10.0.2.14 worker4 worker1.example.com
+    10.0.2.15 worker5 worker1.example.com
+    EOF
+
     sudo tee /etc/resolv.conf << EOF
     search race.sas.com example.com
     nameserver 10.19.1.23
