@@ -63,7 +63,7 @@ Now delete the pods.
 Previous pods are being deleted and k8s automatically deploys new pods to fulfill the definition.
 
 ### Add a pod by editing the replica set.
-Open deploymeny.yaml and edit .
+Open deployment.yaml and edit .
 ######
     spec:
         replicas: 3
