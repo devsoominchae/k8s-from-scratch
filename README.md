@@ -193,6 +193,19 @@ Expected output
 ### Configure ingress-nginx with a yaml file
     kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.10.1/deploy/static/provider/cloud/deploy.yaml
 
+### Patch Ingress to allow snippets
+    kubectl patch deployment ingress-nginx-controller \
+      -n ingress-nginx \
+      --type=json \
+      -p='[
+        {
+          "op": "add",
+          "path": "/spec/template/spec/containers/0/args/-",
+          "value": "--enable-snippets=true"
+        }
+      ]'
+
+
 ### Configure nfs
     sudo yum install nfs-utils -y
     sudo systemctl enable --now nfs-server
