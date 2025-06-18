@@ -18,10 +18,10 @@
     sudo tee -a /etc/hosts << EOF
     10.0.2.10 control control.example.com
     10.0.2.11 worker1 worker1.example.com
-    10.0.2.12 worker2 worker1.example.com
-    10.0.2.13 worker3 worker1.example.com
-    10.0.2.14 worker4 worker1.example.com
-    10.0.2.15 worker5 worker1.example.com
+    10.0.2.12 worker2 worker2.example.com
+    10.0.2.13 worker3 worker3.example.com
+    10.0.2.14 worker4 worker4.example.com
+    10.0.2.15 worker5 worker5.example.com
     EOF
 
 ### Disable swap memory
