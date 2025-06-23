@@ -21,7 +21,7 @@ to tell the ingress controller when someone is accessing the ingress port (80), 
 Use kubectl command with filters.
 ######
     kubectl get pods -l app=ip-viewer -n demo
-
+######
     NAME                         READY   STATUS    RESTARTS   AGE
     ip-viewer-5855bbddc9-ctwjl   1/1     Running   0          20m
     ip-viewer-5855bbddc9-lzrzh   1/1     Running   0          20m
@@ -40,6 +40,7 @@ Before deleting the pods, lets see what we currently have.
 ######
     kubectl get pods -l app=ip-viewer -n demo
 
+######
     NAME                         READY   STATUS    RESTARTS   AGE
     ip-viewer-5855bbddc9-ctwjl   1/1     Running   0          25m
     ip-viewer-5855bbddc9-lzrzh   1/1     Running   0          25m
@@ -52,6 +53,7 @@ Now delete the pods.
 ######
     kubectl get pods -l app=ip-viewer -n demo
 
+######
     NAME                         READY   STATUS        RESTARTS   AGE
     ip-viewer-5855bbddc9-c5l8x   1/1     Running       0          16s
     ip-viewer-5855bbddc9-ctwjl   1/1     Terminating   0          26m
