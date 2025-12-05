@@ -337,3 +337,7 @@ Full code for worker node setup
 
     sudo yum install --disableexcludes=kubernetes kubeadm kubelet -y
     sudo systemctl enable --now kubelet
+
+Set default namespace for kubectl commands
+######
+    kubectl config set-context --current --namespace=viya
