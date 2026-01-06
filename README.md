@@ -131,6 +131,8 @@ Expected output
 ### Enable autofill for kubectl commands
     sudo yum install bash-completion -y
     echo 'source <(kubectl completion bash)' >> ~/.bashrc
+    echo 'source <(kubectl completion bash | sed s/kubectl/k/g)' >> ~/.bashrc
+    echo 'alias k=kubectl' >> ~/.bashrc
     source ~/.bashrc
 
 ### Install K9s for monitoring
